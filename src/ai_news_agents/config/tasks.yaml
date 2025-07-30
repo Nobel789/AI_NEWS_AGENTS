@@ -1,0 +1,81 @@
+generate_news_task:
+  description: Generate news about AI LLMs.
+  expected_output: >
+    A list with 4 websites of the most relevant information about {topic}
+  agent: news_agent
+
+fact_checking_task:
+  description: >
+    Verify the credibility and reliability of sources found by the news agent.
+    For each source URL, analyze:
+    1. Domain reputation (check if from reputable sources like Reuters, BBC, AP, NYT, etc.)
+    2. Source type (established media, academic, government, blog, etc.)
+    3. Potential bias indicators
+    4. Overall credibility assessment
+    Rate each source on a scale of 0-100 for credibility and provide recommendations.
+    Focus on well-known, established news sources for AI and technology coverage.
+  expected_output: >
+    A comprehensive fact-checking report including:
+    - Credibility score (0-100) for each source
+    - Domain reputation analysis (high/medium/low)
+    - Source type classification
+    - Bias assessment and red flags
+    - Recommendations for each source (use/cross-reference/avoid)
+    - Final list of approved sources for scraping
+    - Summary of fact-checking methodology used
+  agent: fact_checker_agent
+
+webscraping_task:
+  description: >
+    Scrape only the verified and credible websites approved by the fact-checking agent.
+    Focus on sources with high credibility scores and avoid those flagged as unreliable.
+    Extract comprehensive information while maintaining awareness of any bias indicators noted in the fact-check report.
+  output_file: report.md
+  expected_output: >
+    Fully scraped content from verified sources with credibility context and bias awareness
+  agent: webscrapper_agent
+  context: [fact_checking_task]
+
+filegenerate_task:
+  description: >
+    Create a comprehensive, publication-ready news report that synthesizes all information
+    from verified sources into a polished article. Follow this exact structure:
+
+    **ARTICLE FORMAT:**
+    1. Compelling headline (clear and informative)
+    2. Executive Summary (150 words max - key highlights)
+    3. Main Content Sections:
+       - Key Developments (most important news)
+       - Industry Impact & Analysis
+       - Expert Insights & Quotes
+       - Future Outlook & Trends
+    4. Professional conclusion
+
+    **CREDIBILITY SECTION (SEPARATE):**
+    Add a dedicated "Source Credibility Assessment" section that includes:
+    - Credibility scores for each source (X/100)
+    - Domain reputation classification (High/Medium/Low)
+    - Source diversity analysis
+    - Fact-checking methodology summary
+    - Any bias indicators or red flags noted
+
+    **STYLE REQUIREMENTS:**
+    - Professional journalistic tone
+    - Clear, engaging writing
+    - Proper citations and attributions
+    - Ready for immediate copy/paste use
+    - No technical jargon without explanation
+  output_file: news/comprehensive_ai_news_report.md
+  expected_output: >
+    A complete, professional news report saved as markdown file with:
+    ✓ Professional headline and structure
+    ✓ 1000-1500 word comprehensive article
+    ✓ Clear sections with engaging content
+    ✓ Separate credibility assessment paragraph
+    ✓ Source transparency and fact-checking notes
+    ✓ Professional formatting and citations
+    ✓ Ready for publication/sharing
+    File: news/comprehensive_ai_news_report.md
+  agent: filegenerate_analyst
+  context: [fact_checking_task, webscraping_task]
+
