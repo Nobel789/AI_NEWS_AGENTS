@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI News Agent</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 2em;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        #container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2em;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #444;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 8px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        button {
+            padding: 8px 16px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #report {
+            margin-top: 2em;
+            border-top: 1px solid #eee;
+            padding-top: 1em;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 4px solid #3498db;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+            display: none; /* Hidden by default */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1>AI News Agent</h1>
+        <input type="text" id="topic" placeholder="Enter a topic (e.g., Quantum Computing)">
+        <button onclick="generateReport()">Generate Report</button>
+        <div class="loader" id="loader"></div>
+        <div id="report"></div>
+    </div>
+
+    <script>
+        async function generateReport() {
+            const topic = document.getElementById('topic').value;
+            const reportDiv = document.getElementById('report');
+            const loader = document.getElementById('loader');
+
+            if (!topic) {
+                alert('Please enter a topic.');
+                return;
+            }
+
+            reportDiv.innerHTML = '';
+            loader.style.display = 'block';
+
+            try {
+                const response = await fetch('/api/run', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ topic: topic })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    reportDiv.innerHTML = data.report;
+                } else {
+                    reportDiv.innerHTML = `<p style="color: red;">Error: ${data.error}</p>`;
+                }
+            } catch (error) {
+                reportDiv.innerHTML = `<p style="color: red;">An unexpected error occurred: ${error.toString()}</p>`;
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
